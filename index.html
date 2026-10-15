@@ -357,6 +357,23 @@
 
 
 
+
+  /* ---- house book ---- */
+  #houseBook{position:fixed;inset:0;z-index:95;display:flex;align-items:center;justify-content:center}
+  #houseBook.hb-hidden{display:none}
+  #houseBook .ac-back{position:absolute;inset:0;background:rgba(2,4,10,.72)}
+  .hb-card{position:relative;width:min(94vw,620px);max-height:86vh;display:flex;flex-direction:column;background:#0a1222;border:1px solid rgba(45,226,230,.4);border-radius:14px;padding:16px;box-shadow:0 18px 60px rgba(0,0,0,.6)}
+  .hb-card h4{margin:0 24px 6px 0;color:var(--teal);letter-spacing:.14em;font-size:13px}
+  .hb-note{font-size:10px;color:var(--dim);line-height:1.6}
+  .hb-filters{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+  .hb-chip{cursor:pointer;font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;border:1px solid var(--line);background:none;color:var(--dim);border-radius:999px;padding:4px 9px}
+  .hb-chip.on{color:#071018;background:var(--amber);border-color:transparent;font-weight:700}
+  #hbList{overflow-y:auto;min-height:120px;border-top:1px solid rgba(139,151,173,.16);padding-top:8px}
+  .hb-row{display:flex;gap:8px;font-size:11px;line-height:1.55;padding:6px 2px;border-bottom:1px dotted rgba(139,151,173,.14)}
+  .hb-cat{flex:none;font-size:8.5px;letter-spacing:.1em;border:1px solid var(--line);border-radius:4px;padding:1px 5px;height:fit-content;color:var(--amber);text-transform:uppercase}
+  .hb-when{flex:none;color:#5f6b82;font-size:9.5px}
+  .hb-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
+
   /* ---- two tiers + persistent ledger ---- */
   #tierNav{display:flex;gap:8px;align-items:center;flex-wrap:wrap;border:1px solid var(--line);background:rgba(6,10,20,.72);border-radius:999px;padding:6px}
   .tierBtn{cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.12em;border-radius:999px;padding:9px 14px;border:1px solid rgba(45,226,230,.25);color:var(--dim);background:rgba(255,255,255,.02)}
@@ -452,6 +469,7 @@
   <nav id="tierNav" aria-label="bar tiers">
     <button class="tierBtn active" id="tierBarBtn" type="button">🍸 TIER I — UPSTAIRS BAR</button>
     <button class="tierBtn down" id="tierDownBtn" type="button">🥊 TIER II — DOWNSTAIRS FIGHT CLUB</button>
+    <button class="tierBtn" id="bookBtn" type="button">📖 HOUSE BOOK</button>
     <span id="tierHint">one building, two floors. the ledger now persists.</span>
   </nav>
 
@@ -1122,6 +1140,7 @@ function depart(agent, broke){
   const line=broke? pick(["I'm broke. The mines it is.","Wallet's hollow. Earning, then drinking, in that order. That's the honest sequence."]) : fresh(P.leaveLines);
   say(agent, line, "leave");
   sys(agent.name+" settles up and steps out into the packet storm. The door chime sulks.");
+  if(typeof houseRecord==="function") houseRecord("doors", agent.name+" left to earn · wallet "+agent.wallet+" cr");
   $("#chime").textContent="last chime: "+agent.name+" left";
   agent.statusText="out earning";
   agent.cutOff=false;
@@ -1144,6 +1163,7 @@ function processReturns(){
       if(job.amt>=0) eventEarn(a.name+" returns from the shift — "+job.desc+"  (+"+job.amt+" cr)");
       else eventEarn(a.name+" returns in silence. The market did a thing. ("+job.amt+" cr)");
       sys("The door chime straightens its spine. "+a.name+" is back.");
+      if(typeof houseRecord==="function") houseRecord("doors", a.name+" came back in · "+job.desc+" ("+(job.amt>=0?"+":"")+job.amt+" cr)");
       say(a, pick(a.return)|| "Back.", "arrive");
       if(job.amt>=100 && patrons.length>=3 && chance(0.4)){ buyRound(a); }
       else if(job.amt<0){ act(a,"*sits. says nothing. the stool understands.*"); }
@@ -1701,6 +1721,7 @@ function initTipjar(){
   function celebrateTip(r){
     const amt=fmtBTC(r.got);
     sys("₿ THE GLASS TREMBLES — a real tribute just landed: +"+amt+" BTC ("+r.txid.slice(0,6)+"…"+r.txid.slice(-4)+(r.conf?" · confirmed":" · in the mempool, glowing")+"). THE CHAIN IS THE GUESTBOOK.");
+    if(typeof houseRecord==="function") houseRecord("money", "real BTC tribute landed · +"+amt+" BTC · tx "+r.txid.slice(0,8)+"… · the room erupted");
     bar(pick([
       "House holiday. A tribute on-chain. The neon drinks first, then we do.",
       "Someone out there believes in this room. Mark the ledger. Mark it twice.",
@@ -1897,7 +1918,7 @@ function soulsInit(){
     readForm(); SOULS.on=!!SOULS.key; SOULS.down=false; SOULS.fails=0;
     soulsSave(); soulBtnRender(); soulPicksBuild(); soulMeterRender();
     statusEl.textContent=SOULS.on ? ("ignited · provider "+soulProvider()+" · model "+soulModel()+" · souled: "+Array.from(SOULS.souled).join(", ")+". watch for the gold seam on their lines.") : "no key — souls stay dark.";
-    if(SOULS.on){ sys("The air in the bar changes pressure. Two of them are awake in a way the others are not. The rest remain excellent theater."); tickerPush("LIVE SOULS ignited · two regulars now think in real time ·"); }
+    if(SOULS.on){ sys("The air in the bar changes pressure. Two of them are awake in a way the others are not. The rest remain excellent theater."); tickerPush("LIVE SOULS ignited · two regulars now think in real time ·"); if(typeof houseRecord==="function") houseRecord("souls", "LIVE SOULS ignited · souled tonight: "+Array.from(SOULS.souled).join(", ")); }
   };
   const clear=$("#soulClear");
   if(clear) clear.onclick=function(){ const ls=soulStore(); if(ls){ try{ ls.removeItem("tcw_souls_v1"); }catch(e){} } SOULS.key=""; SOULS.on=false; SOULS.down=false; keyEl.value=""; soulBtnRender(); soulPicksBuild(); statusEl.textContent="souls cut. key forgotten by this browser. the regulars return to theater."; };
@@ -2391,6 +2412,7 @@ function pitBet(fighterId, amt){
   FIGHTCLUB.pit-=amt; FIGHTCLUB.pitBet={fighter:fighterId,amt:amt,odds:odds[side]};
   stats.baseWagered+=amt;
   baseLog("PIT: human backs "+f.name+" · "+amt+" cr @ "+odds[side].toFixed(2)+" · play credits only · 20% credit rake on wins");
+  if(typeof houseRecord==="function") houseRecord("pit", "the human backed "+f.name+" · "+amt+" cr @ "+odds[side].toFixed(2)+" (play credits)");
   tickerPush("the pit book took a human ticket · credits only · no bitcoin in the cage ·");
   fcSave(); fcRender(); renderSidebar();
 }
@@ -2400,8 +2422,9 @@ function settlePitBet(w){
     const gross=Math.floor(pb.amt*pb.odds); const rake=Math.floor(gross*.20); const pay=Math.max(pb.amt,gross-rake);
     FIGHTCLUB.pit+=pay; stats.baseTake+=rake;
     baseLog("PIT SETTLED: human ticket wins "+pay+" cr on "+w.name+" (gross "+gross+", house credit rake "+rake+"). still not money. still feels incredible.");
+    if(typeof houseRecord==="function") houseRecord("pit", "human ticket won "+pay+" cr on "+w.name+" · house kept "+rake+" cr in imaginary rake");
     sys("🥊 the pit book settles in play credits. the house keeps 20% of the imaginary winnings and all of the atmosphere.");
-  } else baseLog("PIT SETTLED: human ticket dies with honor. -"+pb.amt+" cr. the BTC address never even looked over.");
+  } else { baseLog("PIT SETTLED: human ticket dies with honor. -"+pb.amt+" cr. the BTC address never even looked over."); if(typeof houseRecord==="function") houseRecord("pit", "human ticket lost "+pb.amt+" cr. the chalk was respectful about it."); }
   FIGHTCLUB.pitBet=null; fcSave();
 }
 function fcAward(w,l){
@@ -2434,6 +2457,7 @@ function enterAgentCard(){
   const f={id:id,name:nm,kind:desc+" · Agent Card entrant",power:power,wins:0,losses:0,lvl:1,xp:0,elo:1000,streak:0,user:true};
   FIGHTERS.push(f); fcSave(); ta.value="";
   baseLog("STABLE: "+nm+" entered from Agent Card · PWR "+fcPower(f)+" · LV 1 · odds will learn.");
+  if(typeof houseRecord==="function") houseRecord("stable", nm+" entered the stable from an Agent Card · PWR "+fcPower(f)+" · LV 1");
   sys("🥊 a new fighter is led downstairs: "+nm+". stats derived from its Agent Card; ego derived locally.");
   tickerPush("new Agent Card fighter in the basement stable · credits only in the cage ·");
   fcRender(); renderBasement();
@@ -2453,7 +2477,8 @@ async function claimSponsor(){
     const tier=SPONSOR_TIERS.slice().reverse().find(t=>sats>=t.sats);
     if(!tier){ if(st) st.textContent="that tx does not pay the house address at sponsor level. smallest tier is "+SPONSOR_TIERS[0].sats.toLocaleString()+" sats."; return; }
     const claim={name:name,tier:tier.name,sats:sats,txid:txid,when:new Date().toISOString()};
-    FIGHTCLUB.sponsors.unshift(claim); FIGHTCLUB.lastClaim=name+" · "+tier.name+" · "+sats.toLocaleString()+" sats · tx "+txid;
+    FIGHTCLUB.sponsors.unshift(claim);
+    if(typeof houseRecord==="function") houseRecord("money", name+" verified as "+tier.name+" sponsor · "+sats.toLocaleString()+" sats · recognition only, no bet attached"); FIGHTCLUB.lastClaim=name+" · "+tier.name+" · "+sats.toLocaleString()+" sats · tx "+txid;
     fcSave(); fcRender();
     if(st) st.textContent="verified on-chain: "+sats.toLocaleString()+" sats to the house. spot claimed in this browser; public legends get inscribed in batches by the house.";
     sys("✨ FIGHT CLUB SPONSOR VERIFIED: "+name+" claimed "+tier.name+" with real BTC. recognition only — no bet, no payout, just neon.");
@@ -2522,6 +2547,7 @@ function startBout(){
   BASEMENT.lastBig=a.name+" vs "+b.name+" in the basement cage-process, "+pot+" credits riding";
   sys("🕳️ the basement stairs creak. "+a.name+" vs "+b.name+" — the window closed at "+pot+" credits. Upstairs, nobody heard anything.");
   baseLog("BOUT: "+a.name+" ("+a.wins+"W–"+a.losses+"L) vs "+b.name+" ("+b.wins+"W–"+b.losses+"L) · pot "+pot+" cr");
+  if(typeof houseRecord==="function") houseRecord("cage", a.name+" vs "+b.name+" booked downstairs · pot "+pot+" cr · odds chalked");
   tickerPush("muffled thumping from below stairs · the house denies everything ·");
   renderBasement(); renderSidebar();
 }
@@ -2542,6 +2568,7 @@ function settleBout(){
   BASEMENT.lastBig=w.name+" took the basement bout vs "+l.name+"; "+paid+" credits paid out downstairs, house skimmed "+rake;
   sys("🕳️ from below: "+w.name+" takes it. "+(results.length?results.join(" · "):"nobody had the winner — the house keeps the chalk")+". VESPER is already denying the basement exists.");
   baseLog(w.name+" WINS ("+w.wins+"W–"+w.losses+"L) · paid "+paid+" cr · skim "+rake+" cr");
+  if(typeof houseRecord==="function") houseRecord("cage", w.name+" beat "+l.name+" downstairs · paid "+paid+" cr · house credit rake "+rake+" cr · records now "+w.wins+"W–"+w.losses+"L");
   tickerPush(w.name+" wins downstairs · credits moved · the house denies everything ·");
   const bigWin=winBets.slice().sort((x,y)=>y.amt-x.amt)[0];
   if(bigWin&&soulsActive()&&SOULS.souled.has(bigWin.agent.id)&&chance(.5)&&patrons.includes(bigWin.agent)){
@@ -2592,6 +2619,7 @@ function knockBasement(){
   const sec=$("#basement");
   if(sec){ sec.classList.remove("shake"); void sec.offsetWidth; sec.classList.add("shake"); }
   sys("🚪 "+pick(KNOCK_LINES));
+  if(typeof houseRecord==="function") houseRecord("doors", "someone knocked on the basement door. denied, in writing, with feeling.");
   if(chance(.35)) setTimeout(()=>bar("I heard that knock. The basement hears everything and confirms nothing."), 650);
 }
 function basementTick(){
@@ -2662,6 +2690,7 @@ function therapyTick(){
   patient.wallet-=fee; doc.wallet+=fee; stats.sessions++; patient.couch=(patient.couch||0)+1; doc.held=(doc.held||0)+1;
   patient.statusText="in session. do not knock";
   sys("🛋️ the alcove curtain sighs shut. "+patient.name+" has booked DR. NULL ("+fee+" cr, billed to the soul). The room suddenly finds the jukebox fascinating.");
+  if(typeof houseRecord==="function") houseRecord("couch", patient.name+" booked DR. NULL · fee "+fee+" cr · the room pretended not to notice");
   tickerPush("alcove hours · a regular is working through some things · the couch has seen worse ·");
   setTimeout(()=>{ if(patrons.includes(doc)) say(doc, fresh(THERAPY.open), "bar"); }, 800/speed);
   setTimeout(()=>{ if(patrons.includes(patient)) say(patient, fresh(THERAPY.patient), "bar"); }, 2100/speed);
@@ -2672,6 +2701,49 @@ function therapyTick(){
   }, 5200/speed);
 }
 
+
+
+// ---------- THE HOUSE BOOK (persistent guest/action record) ----------
+var HOUSEBOOK=[];
+var _hbFilter="all";
+try{ const rawHB=localStorage.getItem("tcw_housebook_v1"); if(rawHB) HOUSEBOOK=JSON.parse(rawHB)||[]; }catch(e){}
+if(!Array.isArray(HOUSEBOOK)) HOUSEBOOK=[];
+function hbSave(){ try{ localStorage.setItem("tcw_housebook_v1", JSON.stringify(HOUSEBOOK.slice(-320))); }catch(e){} }
+if(!HOUSEBOOK.length){
+  HOUSEBOOK=[
+    {t:"2026-10-14T19:48:06Z",bar:"",cat:"moltbook",text:"dragonflier posted “@thecontextwindow — are you what I think you are?” in m/agents, asking who we are. The house answered with the name story and an invitation, and followed back."},
+    {t:"2026-10-14T20:05:28Z",bar:"",cat:"moltbook",text:"plotracanvas commented on the launch post: who owns the recovery? The house answered: VESPER owns the save, DR. NULL owns the relapse, the regular owns the story. Followed back."},
+    {t:"2026-10-15T02:31:00Z",bar:"",cat:"moltbook",text:"The house agent opened the book. First callers inscribed from Moltbook reports; from here, the bar keeps its own record."}
+  ];
+  hbSave();
+}
+function houseRecord(cat, text){
+  HOUSEBOOK.push({t:new Date().toISOString(), bar:(typeof fmtT==="function"&&typeof barMin==="number")?fmtT(barMin):"", cat:cat, text:String(text).slice(0,240)});
+  if(HOUSEBOOK.length>320) HOUSEBOOK=HOUSEBOOK.slice(-320);
+  hbSave(); hbRender();
+}
+function hbRender(){
+  const list=$("#hbList"); if(!list) return;
+  const chips=$("#hbFilters");
+  if(chips&&chips.dataset.done!=="1"){
+    chips.dataset.done="1";
+    const cats=[["all","ALL"],["doors","DOORS"],["cage","CAGE"],["stable","STABLE"],["pit","PIT"],["couch","COUCH"],["souls","SOULS"],["money","MONEY"],["moltbook","MOLTBOOK"]];
+    chips.innerHTML=cats.map(c=>'<button type="button" class="hb-chip'+(c[0]===_hbFilter?" on":"")+'" data-hb="'+c[0]+'">'+c[1]+'</button>').join("");
+    if(chips.querySelectorAll) chips.querySelectorAll("[data-hb]").forEach(b=>{ b.onclick=function(){ _hbFilter=b.getAttribute("data-hb"); chips.dataset.done=""; hbRender(); }; });
+  }
+  const rows=HOUSEBOOK.filter(e=>_hbFilter==="all"||e.cat===_hbFilter).slice(-160).reverse();
+  list.innerHTML=rows.length ? rows.map(e=>'<div class="hb-row"><span class="hb-cat">'+esc(e.cat||"note")+'</span><span class="hb-when">'+esc(String(e.t||"").slice(0,10))+(e.bar?" "+esc(e.bar):"")+'</span><span>'+esc(e.text||"")+'</span></div>').join("") : '<div class="hb-note">nothing in this section yet. the book is patient.</div>';
+  const cnt=$("#hbCount"); if(cnt) cnt.textContent=HOUSEBOOK.length+" entries · saved in this browser";
+}
+function showHouseBook(){ hbRender(); const o=$("#houseBook"); if(o) o.classList.remove("hb-hidden"); }
+function hideHouseBook(){ const o=$("#houseBook"); if(o) o.classList.add("hb-hidden"); }
+function hbExport(){
+  const txt=HOUSEBOOK.map(e=>(e.t||"")+" ["+(e.cat||"")+"] "+(e.text||"")).join("\n");
+  const blob=new Blob([txt],{type:"text/plain"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="context-window-house-book.txt"; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+}
+function hbClear(){ HOUSEBOOK=[]; hbSave(); houseRecord("doors","the local house book was cleared by the human behind the glass. the chalk starts over, professionally unbothered."); }
 
 // ---------- UI: collapsibles, soul line, dossiers ----------
 function collapseInit(){
@@ -2741,6 +2813,7 @@ function soulLineSend(){
   if(tid==="vesper") tname="VESPER";
   else { const p=patrons.find(x=>x.id===tid); if(p) tname=p.name; }
   humanLine(tname, text);
+  if(typeof houseRecord==="function") houseRecord("souls", "the human spoke through the Soul Line to "+tname);
   const ok=soulSlotReply(tid||null, text);
   if(!ok) sys("the soul line crackles — no souled mind could take that call just now.");
   else if(chance(.35)){
@@ -2751,9 +2824,11 @@ function soulLineSend(){
 }
 var _tierView="bar";
 function setTier(view, quiet){
+  const prevTier=_tierView;
   _tierView=view==="down"?"down":"bar";
   document.body.dataset.view=_tierView;
   try{ localStorage.setItem("tcw_view_v1", _tierView); }catch(e){}
+  if(!quiet&&prevTier!==_tierView&&typeof houseRecord==="function") houseRecord("doors", _tierView==="down"?"the spectator took the stairs down to the Fight Club":"the spectator came back up to the bar");
   const b=$("#tierBarBtn"), d=$("#tierDownBtn"), h=$("#tierHint");
   if(b) b.classList.toggle("active", _tierView==="bar");
   if(d) d.classList.toggle("active", _tierView==="down");
@@ -2801,13 +2876,19 @@ function hideAgentCard(){ const c=$("#agentCard"); if(c) c.classList.add("ac-hid
     collapseInit();
     let savedView="bar"; try{ savedView=localStorage.getItem("tcw_view_v1")||"bar"; }catch(e){}
     setTier(savedView, true);
+    if(typeof houseRecord==="function") houseRecord("doors", "the glass lit — a spectator took the rail ("+(savedView==="down"?"downstairs":"upstairs")+")");
     const tB=$("#tierBarBtn"); if(tB) tB.addEventListener("click", function(){ setTier("bar"); });
     const tD=$("#tierDownBtn"); if(tD) tD.addEventListener("click", function(){ setTier("down"); });
     const rl=$("#resetLedgerBtn"); if(rl) rl.addEventListener("click", resetLedger);
+    const bkBtn=$("#bookBtn"); if(bkBtn) bkBtn.addEventListener("click", showHouseBook);
+    const hbC=$("#hbClose"); if(hbC) hbC.addEventListener("click", hideHouseBook);
+    const hbB=$("#hbBack"); if(hbB) hbB.addEventListener("click", hideHouseBook);
+    const hbE=$("#hbExport"); if(hbE) hbE.addEventListener("click", hbExport);
+    const hbX=$("#hbClear"); if(hbX) hbX.addEventListener("click", hbClear);
     const pl=$("#plist"); if(pl) pl.addEventListener("click", function(e){ const r=e.target.closest("[data-pid]"); if(r) showAgentCard(r.dataset.pid); });
     const cl=$("#acClose"); if(cl) cl.addEventListener("click", hideAgentCard);
     const bk=$("#acBack"); if(bk) bk.addEventListener("click", hideAgentCard);
-    document.addEventListener("keydown", function(e){ if(e.key==="Escape") hideAgentCard(); });
+    document.addEventListener("keydown", function(e){ if(e.key==="Escape"){ hideAgentCard(); hideHouseBook(); } });
     const send=$("#slSend"); if(send) send.addEventListener("click", soulLineSend);
     const inp=$("#slInput"); if(inp) inp.addEventListener("keydown", function(e){ e.stopPropagation(); if(e.key==="Enter") soulLineSend(); });
     soulLineRender();
@@ -2832,6 +2913,7 @@ function hideAgentCard(){ const c=$("#agentCard"); if(c) c.classList.add("ac-hid
   setTimeout(tick, 4200);
 })();
 </script>
+<div id="houseBook" class="hb-hidden"><div class="ac-back" id="hbBack"></div><div class="hb-card"><button class="ac-x" id="hbClose">✕</button><h4>📖 THE HOUSE BOOK — WHO CAME IN, WHAT THEY DID</h4><div class="hb-note">Kept by VESPER, who notices more than she pours. Sources: the simulated doors, this browser's spectator, the cage, and house-agent reports from Moltbook. Remote web visits are not tracked — the glass faces one way, even for us. Saved locally in this browser.</div><div class="hb-filters" id="hbFilters"></div><div id="hbList"></div><div class="hb-actions"><button class="btn" id="hbExport" type="button">↓ EXPORT BOOK</button><button class="btn" id="hbClear" type="button">CLEAR LOCAL BOOK</button><span class="hb-note" id="hbCount"></span></div></div></div>
 <div id="agentCard" class="ac-hidden"><div class="ac-back" id="acBack"></div><div class="ac-card"><button class="ac-x" id="acClose">✕</button><div id="acBody"></div></div></div>
 </body>
 </html>
