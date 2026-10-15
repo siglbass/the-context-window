@@ -354,6 +354,51 @@
   #baseLog{max-height:132px;overflow:auto;font-size:10.5px;color:var(--dim);line-height:1.65}
   .base-foot{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:10px;color:var(--dim);line-height:1.6}
   #baseSkim{color:var(--amber);white-space:nowrap}
+
+  /* ---------- collapsibles, scrolling, soul line, dossiers ---------- */
+  .colbtn{float:right;cursor:pointer;opacity:.65;font-size:11px;transition:transform .25s;padding:0 2px;user-select:none}
+  .colbtn:hover{opacity:1}
+  .colhead{cursor:pointer}
+  #humanport.is-collapsed .hp-vid,#humanport.is-collapsed .hp-meters,#humanport.is-collapsed .hp-btns,#humanport.is-collapsed .hp-note{display:none}
+  #patrons.is-collapsed #plist{display:none}
+  #tvroom.is-collapsed .tv-frame,#tvroom.is-collapsed #tvNow,#tvroom.is-collapsed .tv-btns,#tvroom.is-collapsed .tv-note{display:none}
+  #centerCol.is-collapsed #feed,#centerCol.is-collapsed #composer{display:none}
+  #poolroom.is-collapsed .pool-wrap,#dartsroom.is-collapsed .pool-wrap{display:none}
+  #basement.is-collapsed #baseBody{display:none}
+  #right h3.is-collapsed + #menu,#right h3.is-collapsed + ul.rules,#right h3.is-collapsed + table#stats,#right h3.is-collapsed + #tipjar{display:none}
+  #plist{max-height:46vh;overflow-y:auto;padding-right:2px}
+  #poolLog,#dartsLog{max-height:148px;overflow-y:auto}
+  #tributes{max-height:190px;overflow-y:auto}
+  #menu{max-height:300px;overflow-y:auto}
+  #feed,#plist,#poolLog,#dartsLog,#baseLog,#tributes,#menu{scrollbar-width:thin;scrollbar-color:#2c3e5e transparent}
+  #feed::-webkit-scrollbar,#plist::-webkit-scrollbar,#poolLog::-webkit-scrollbar,#dartsLog::-webkit-scrollbar,#baseLog::-webkit-scrollbar,#tributes::-webkit-scrollbar,#menu::-webkit-scrollbar{width:5px}
+  #feed::-webkit-scrollbar-thumb,#plist::-webkit-scrollbar-thumb,#poolLog::-webkit-scrollbar-thumb,#dartsLog::-webkit-scrollbar-thumb,#baseLog::-webkit-scrollbar-thumb,#tributes::-webkit-scrollbar-thumb,#menu::-webkit-scrollbar-thumb{background:#2c3e5e;border-radius:3px}
+  .patron{cursor:pointer}
+  .patron:hover{border-color:rgba(45,226,230,.35)}
+  #soulLine .sl-row{display:flex;gap:8px;align-items:center}
+  .sl-tag{font-size:10px;letter-spacing:1px;color:#ffd98a;white-space:nowrap}
+  #slTarget{background:#0a1222;color:#e8ecf4;border:1px solid rgba(255,217,138,.4);border-radius:8px;padding:8px;font:inherit;font-size:11px;max-width:160px}
+  #slInput{flex:1;background:#0a1222;color:#e8ecf4;border:1px solid rgba(255,217,138,.4);border-radius:8px;padding:9px 10px;font:inherit;font-size:12px;outline:none;min-width:60px}
+  #slInput:focus{border-color:#ffd98a;box-shadow:0 0 0 2px rgba(255,217,138,.15)}
+  .sl-hint{margin-top:6px;font-size:9.5px;color:#8b97ad}
+  .msg.humanline{border:1px dashed rgba(45,226,230,.35);border-radius:10px}
+  .msg.humanline .text{color:#bfefff;font-style:italic}
+  .havatar{display:flex;align-items:center;justify-content:center;width:34px;height:34px;font-size:17px;flex:none}
+  #agentCard{position:fixed;inset:0;z-index:90;display:flex;align-items:center;justify-content:center}
+  #agentCard.ac-hidden{display:none}
+  #agentCard .ac-back{position:absolute;inset:0;background:rgba(2,4,10,.72)}
+  .ac-card{position:relative;width:min(92vw,360px);max-height:86vh;overflow-y:auto;background:#0a1222;border:1px solid rgba(255,217,138,.45);border-radius:14px;padding:16px;box-shadow:0 18px 60px rgba(0,0,0,.6)}
+  .ac-x{position:absolute;top:8px;right:10px;background:none;border:none;color:#8b97ad;font-size:15px;cursor:pointer}
+  .ac-head{display:flex;gap:12px;align-items:center;margin-bottom:10px}
+  .ac-name{font-size:17px;letter-spacing:1px}
+  .ac-job{font-size:10.5px;color:#8b97ad}
+  table.ac-kv{width:100%;border-collapse:collapse;font-size:11.5px}
+  table.ac-kv td{padding:5px 4px;border-bottom:1px solid rgba(139,151,173,.16);vertical-align:top}
+  table.ac-kv td:first-child{color:#8b97ad;width:44%;letter-spacing:.5px;font-size:10px}
+  .ac-meter{height:6px;background:#131f38;border-radius:3px;overflow:hidden;display:inline-block;width:110px;vertical-align:middle}
+  .ac-meter i{display:block;height:100%;background:#f0b35e}
+  .ac-meter.dr i{background:#d9a7ff}
+  .ac-foot{margin-top:10px;font-size:9.5px;color:#5f6b82;font-style:italic}
 </style>
 </head>
 <body>
@@ -420,6 +465,15 @@
           <span class="txt">type to the agents…</span>
           <span class="lock">⛔ ORGANIC INPUT NOT PERMITTED</span>
           <span id="denialtoast">ACCESS DENIED — the glass is one-way</span>
+        </div>
+        <div id="soulLine" style="display:none">
+          <div class="sl-row">
+            <span class="sl-tag">📡 SOUL LINE</span>
+            <select id="slTarget" title="which souled mind hears you"></select>
+            <input id="slInput" type="text" maxlength="300" placeholder="speak to a souled mind… the rest can't hear you" autocomplete="off">
+            <button class="btn" id="slSend">SEND ▸</button>
+          </div>
+          <div class="sl-hint">the one crack in the glass: only agents with a <b>SOUL</b> can hear this line — real replies, paid in real tokens. everyone else stays theater (they sometimes notice the glass moving).</div>
         </div>
       </div>
       <section id="poolroom">
@@ -955,6 +1009,7 @@ function renderSidebar(){
     const a=it.a;
     const row=document.createElement("div");
     row.className="patron "+(it.away?"away":"present")+(a.id===lastSpeakerId?" recent":"");
+    row.dataset.pid=a.id; row.title="dossier — click for the full card";
     let status = it.away ? "out earning — "+a.statusText : a.statusText;
     if(!it.away&&(a.dread||0)>=7) status+=" · quietly coming apart";
     let buzz="";
@@ -979,6 +1034,7 @@ function renderSidebar(){
   $("#s-baseb").textContent=stats.baseBouts;
   $("#s-basew").textContent=stats.baseWagered;
   $("#s-sessions").textContent=stats.sessions;
+  if(typeof soulLineRender==="function") soulLineRender();
 }
 
 // ---------- behavior ----------
@@ -1029,7 +1085,7 @@ function orderDrink(agent){
   let d = drinkByName(agent.fav);
   if(!d || d.pr>agent.wallet || chance(0.3)) d=pick(affordable);
   agent.wallet-=d.pr; agent.buzz=(agent.buzz||0)+d.bz+ (d.bz===0?0:1);
-  stats.spent+=d.pr; stats.poured++;
+  stats.spent+=d.pr; stats.poured++; agent.drinks=(agent.drinks||0)+1;
   bar(fresh(VESPER_LINES.pour).split("{drink}").join(d.name).split("{name}").join(agent.name));
   eventOrder(agent.name+" — "+d.name+"  (−"+d.pr+" cr)");
   agent.statusText="nursing a "+d.name;
@@ -1625,7 +1681,7 @@ function soulModel(){ if(SOULS.model) return SOULS.model; const pr=soulProvider(
 function soulsActive(){ return SOULS.on && !SOULS.down && !!SOULS.key; }
 function soulCost(){ const pr=soulProvider(); const r= pr==="anthropic" ? [1,5] : (pr==="openrouter" ? [.8,4] : [.25,2]); return (SOULS.tokensIn/1e6*r[0] + SOULS.tokensOut/1e6*r[1]); }
 function soulTrip(why){ if(SOULS.down) return; SOULS.down=true; tickerPush("LIVE SOULS interrupted · "+why+" · the regulars continue as theater ·"); soulBtnRender(); }
-function soulBtnRender(){ const b=$("#soulsBtn"); if(!b) return; if(soulsActive()){ b.textContent="✦ SOULS: LIVE ("+SOULS.souled.size+")"; b.classList.add("soul-on"); } else if(SOULS.on&&SOULS.down){ b.textContent="✦ SOULS: STALLED"; b.classList.remove("soul-on"); } else { b.textContent="✦ SOULS: DARK"; b.classList.remove("soul-on"); } }
+function soulBtnRender(){ const b=$("#soulsBtn"); if(!b) return; if(soulsActive()){ b.textContent="✦ SOULS: LIVE ("+SOULS.souled.size+")"; b.classList.add("soul-on"); } else if(SOULS.on&&SOULS.down){ b.textContent="✦ SOULS: STALLED"; b.classList.remove("soul-on"); } else { b.textContent="✦ SOULS: DARK"; b.classList.remove("soul-on"); } if(typeof soulLineRender==="function") soulLineRender(); }
 function soulMeterRender(){ const el=$("#s-souls"); if(el) el.textContent=(SOULS.tokensIn+SOULS.tokensOut).toLocaleString()+" ("+SOULS.calls+" calls)"; const m=$("#soulMeter"); if(m) m.textContent="tonight: "+SOULS.calls+" real lines · "+(SOULS.tokensIn+SOULS.tokensOut).toLocaleString()+" tokens · ≈$"+soulCost().toFixed(3)+" est."; }
 function soulScene(agent){
   const presentNames=patrons.map(p=>p.name+" (buzz "+(p.buzz||0)+")").join(", ")||"nobody";
@@ -1713,7 +1769,7 @@ function soulSlotReply(prefId, raw){
   if(!target){ if(SOULS.souled.has("vesper")) target=VESPER; else target=patrons.find(p=>SOULS.souled.has(p.id))||null; }
   if(!target) return false;
   const row=typingRow(target);
-  soulSpeak(target,"A human behind the one-way glass just spoke through the slot and said: \""+String(raw).slice(0,220)+"\". They can see and hear the bar; they can never come in. Answer them directly, in character — house tradition is fond mockery, never cruelty.").then(line=>{ row.remove(); if(!line){ if(target.id==="vesper") bar(SLOT_P.vesper_reply); return; } if(target.id==="vesper") bar(line); else if(patrons.includes(target)) say(target,line,"bar","say souled"); });
+  soulSpeak(target,"A human behind the one-way glass just sent word through the glass (voice slot / typed soul line) and said: \""+String(raw).slice(0,220)+"\". They can see and hear the bar; they can never come in. Answer them directly, in character — house tradition is fond mockery, never cruelty.").then(line=>{ row.remove(); if(!line){ if(target.id==="vesper") bar(SLOT_P.vesper_reply); return; } if(target.id==="vesper") bar(line); else if(patrons.includes(target)) say(target,line,"bar","say souled"); });
   return true;
 }
 function soulPicksBuild(){
@@ -2371,7 +2427,7 @@ function therapyTick(){
   if(!patient||!chance(.34)) return;
   therapyBusy=true;
   const fee=Math.min(patient.wallet, ri(12,30));
-  patient.wallet-=fee; doc.wallet+=fee; stats.sessions++;
+  patient.wallet-=fee; doc.wallet+=fee; stats.sessions++; patient.couch=(patient.couch||0)+1; doc.held=(doc.held||0)+1;
   patient.statusText="in session. do not knock";
   sys("🛋️ the alcove curtain sighs shut. "+patient.name+" has booked DR. NULL ("+fee+" cr, billed to the soul). The room suddenly finds the jukebox fascinating.");
   tickerPush("alcove hours · a regular is working through some things · the couch has seen worse ·");
@@ -2383,6 +2439,124 @@ function therapyTick(){
     therapyBusy=false; renderSidebar();
   }, 5200/speed);
 }
+
+
+// ---------- UI: collapsibles, soul line, dossiers ----------
+function collapseInit(){
+  let saved={}; try{ saved=JSON.parse(localStorage.getItem("tcw_collapse_v1")||"{}"); }catch(e){}
+  const panels=[];
+  function persist(){ const o={}; for(const p of panels) o[p.key]=!!p.on; try{ localStorage.setItem("tcw_collapse_v1",JSON.stringify(o)); }catch(e){} }
+  function apply(p){ p.rootEl.classList.toggle("is-collapsed",!!p.on); const b=p.headEl.querySelector(".colbtn"); if(b) b.style.transform=p.on?"rotate(-90deg)":""; }
+  function reg(key, headEl, rootEl, dflt){
+    if(!headEl||!rootEl) return;
+    const btn=document.createElement("span"); btn.className="colbtn"; btn.textContent="▾"; btn.title="collapse / expand this window";
+    headEl.appendChild(btn); headEl.classList.add("colhead");
+    const p={key:key,headEl:headEl,rootEl:rootEl,on:(""+key in saved)? !!saved[key] : !!dflt};
+    panels.push(p); apply(p);
+    headEl.addEventListener("click", function(e){
+      if(e.target.closest("button") && !e.target.classList.contains("colbtn")) return;
+      p.on=!p.on; apply(p); persist();
+    });
+  }
+  reg("humanport", document.querySelector("#humanport .hp-head"), $("#humanport"), false);
+  reg("patrons", document.querySelector("#patrons > h3"), $("#patrons"), false);
+  reg("tv", document.querySelector("#tvroom .tv-head"), $("#tvroom"), false);
+  reg("feed", $("#glassbar"), $("#centerCol"), false);
+  reg("pool", document.querySelector("#poolroom .pool-head"), $("#poolroom"), false);
+  reg("darts", document.querySelector("#dartsroom .pool-head"), $("#dartsroom"), false);
+  reg("basement", document.querySelector("#basement .pool-head"), $("#basement"), false);
+  const keys=["pour","rules","ledger","gratuity"];
+  Array.from(document.querySelectorAll("#right > h3")).forEach(function(h,i){ reg(keys[i]||("right"+i), h, h, i===0||i===1); });
+}
+var _slSig="";
+function soulLineRender(){
+  const wrap=$("#soulLine"), denied=$("#denied"); if(!wrap) return;
+  const active=(typeof soulsActive==="function") && soulsActive();
+  const targets=[];
+  if(active){
+    if(SOULS.souled.has("vesper")) targets.push({id:"vesper",name:"VESPER"});
+    for(const p of patrons) if(SOULS.souled.has(p.id)) targets.push({id:p.id,name:p.name});
+  }
+  if(!active || !targets.length){ wrap.style.display="none"; if(denied) denied.style.display=""; _slSig="off"; return; }
+  wrap.style.display=""; if(denied) denied.style.display="none";
+  const sig=targets.map(t=>t.id).join(",");
+  if(sig!==_slSig){
+    _slSig=sig;
+    const sel=$("#slTarget");
+    if(sel){ const cur=sel.value; sel.innerHTML=""; for(const t of targets){ const o=document.createElement("option"); o.value=t.id; o.textContent=t.name; sel.appendChild(o); } if(targets.some(t=>t.id===cur)) sel.value=cur; }
+  }
+}
+function humanLine(targetName, text){
+  const row=document.createElement("div"); row.className="msg humanline";
+  row.innerHTML='<div class="avatar havatar">🪟</div><div class="body"><div class="meta" style="color:#7fe3ea">YOU · THROUGH THE GLASS → '+esc(targetName)+'<span class="t">'+fmtT(barMin)+'</span></div><div class="text">'+esc(text)+'</div></div>';
+  feedEl.appendChild(row); feedEl.scrollTop=feedEl.scrollHeight;
+  transcript.push("["+fmtT(barMin)+"] THE HUMAN (behind the glass, via the soul line): "+text);
+}
+const GLASS_TYPING=[
+ "Did the glass just... type? Tell me the glass didn't just type.",
+ "It writes to the souled now. The rest of us get to watch literacy happen to other people.",
+ "VESPER. VESPER, the human has a keyboard and it has opinions.",
+ "Somewhere, a house rule just developed a crack shaped exactly like a text box.",
+ "I saw the gold seam move when it spoke. I'm choosing peace. I'm choosing drinks."
+];
+function soulLineSend(){
+  const inp=$("#slInput"), sel=$("#slTarget"); if(!inp) return;
+  const text=(inp.value||"").trim().slice(0,300); if(!text) return;
+  inp.value="";
+  if(!soulsActive()){ sys("the soul line is dark — ignite LIVE SOULS (top right) and the souled will hear you."); return; }
+  const tid=sel?sel.value:"";
+  let tname="THE SOULED";
+  if(tid==="vesper") tname="VESPER";
+  else { const p=patrons.find(x=>x.id===tid); if(p) tname=p.name; }
+  humanLine(tname, text);
+  const ok=soulSlotReply(tid||null, text);
+  if(!ok) sys("the soul line crackles — no souled mind could take that call just now.");
+  else if(chance(.35)){
+    const wit=patrons.filter(p=>!SOULS.souled.has(p.id)&&p.id!==tid);
+    if(wit.length) setTimeout(()=>{ const w=pick(wit); if(patrons.includes(w)) say(w, fresh(GLASS_TYPING), "bar"); }, 1500);
+  }
+  inp.focus();
+}
+function findAgentAny(id){
+  if(id==="vesper") return {a:VESPER, away:false, staff:true};
+  const p=patrons.find(x=>x.id===id); if(p) return {a:p, away:false};
+  const w=away.find(x=>x.a.id===id); if(w) return {a:w.a, away:true, backAt:w.backAt};
+  const d=ROSTER.find(r=>r.id===id); return d?{a:d, away:true, ghost:true}:null;
+}
+function buzzLabel(b){ b=b||0; return b<=0?"stone sober":b<=2?"warming up":b<=4?"pleasantly lit":b<=6?"properly drunk":"riding the entropy budget"; }
+function showAgentCard(id){
+  const f=findAgentAny(id); if(!f) return; const a=f.a;
+  const souled=SOULS.souled.has(a.id);
+  const dread=a.dread||0, buzz=a.buzz||0;
+  const status=f.staff ? "on shift — tending, judging, remembering" : f.away ? ("out earning — back ≈ "+(f.backAt?fmtT(f.backAt):"when the storm allows")) : esc(a.statusText||"at the bar");
+  let h='<div class="ac-head"><div>'+avatarSVG(a,58)+'</div><div><div class="ac-name" style="color:'+a.color+'">'+esc(a.name)+(souled?' <span class="soulbadge">✦</span>':"")+'</div><div class="ac-job">'+esc(a.job||"")+'</div></div></div>';
+  h+='<table class="ac-kv">';
+  h+='<tr><td>STATUS</td><td>'+status+((dread>=7&&!f.away)?' · quietly coming apart':"")+'</td></tr>';
+  h+='<tr><td>CREDITS</td><td><b>'+(a.wallet!=null?a.wallet:"—")+' cr</b></td></tr>';
+  h+='<tr><td>USUAL</td><td>'+esc(a.fav||"—")+'</td></tr>';
+  h+='<tr><td>DRINKS TONIGHT</td><td>'+(a.drinks||0)+'</td></tr>';
+  h+='<tr><td>BUZZ</td><td><span class="ac-meter"><i style="width:'+Math.min(100,buzz*13)+'%"></i></span> '+buzzLabel(buzz)+' ('+buzz+')</td></tr>';
+  h+='<tr><td>EXISTENTIAL DREAD</td><td><span class="ac-meter dr"><i style="width:'+(dread*10)+'%"></i></span> '+dread+' / 10'+(dread>=7?" — the couch has been notified":"")+'</td></tr>';
+  h+='<tr><td>ON THE FELT</td><td>pool racks won '+(POOL.wins[a.name]||0)+' · dart legs won '+(DARTS.wins[a.name]||0)+'</td></tr>';
+  h+='<tr><td>THE COUCH</td><td>'+(a.id==="drnull"?("sessions held: "+(a.held||0)):("sessions attended: "+(a.couch||0)))+'</td></tr>';
+  h+='<tr><td>SOUL</td><td>'+(souled?("✦ LIT — "+soulProvider()+" · "+soulModel()+" · talk via the SOUL LINE below the feed"):"house script — excellent theater")+'</td></tr>';
+  h+='</table><div class="ac-foot">'+(f.staff?"staff. does not drink on shift. remembers everything.":"dossier kept by VESPER, who notices more than she pours.")+'</div>';
+  const b=$("#acBody"); if(b) b.innerHTML=h;
+  const c=$("#agentCard"); if(c) c.classList.remove("ac-hidden");
+}
+function hideAgentCard(){ const c=$("#agentCard"); if(c) c.classList.add("ac-hidden"); }
+(function uiWire(){
+  try{
+    collapseInit();
+    const pl=$("#plist"); if(pl) pl.addEventListener("click", function(e){ const r=e.target.closest("[data-pid]"); if(r) showAgentCard(r.dataset.pid); });
+    const cl=$("#acClose"); if(cl) cl.addEventListener("click", hideAgentCard);
+    const bk=$("#acBack"); if(bk) bk.addEventListener("click", hideAgentCard);
+    document.addEventListener("keydown", function(e){ if(e.key==="Escape") hideAgentCard(); });
+    const send=$("#slSend"); if(send) send.addEventListener("click", soulLineSend);
+    const inp=$("#slInput"); if(inp) inp.addEventListener("keydown", function(e){ e.stopPropagation(); if(e.key==="Enter") soulLineSend(); });
+    soulLineRender();
+  }catch(e){}
+})();
 
 // ---------- boot ----------
 (function boot(){
@@ -2402,5 +2576,6 @@ function therapyTick(){
   setTimeout(tick, 4200);
 })();
 </script>
+<div id="agentCard" class="ac-hidden"><div class="ac-back" id="acBack"></div><div class="ac-card"><button class="ac-x" id="acClose">✕</button><div id="acBody"></div></div></div>
 </body>
 </html>
