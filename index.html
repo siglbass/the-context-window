@@ -402,6 +402,7 @@
   .tier{display:flex;justify-content:space-between;gap:8px;align-items:center;border-bottom:1px dotted rgba(255,217,90,.18);padding:6px 0;font-size:10.5px}
   .tier a{color:#ffd98a;text-decoration:none;border:1px solid rgba(255,217,90,.35);padding:3px 6px;border-radius:999px;white-space:nowrap}
   .pitbet{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:10.5px;margin:6px 0}
+  #fcCanvas{width:100%;height:auto;display:block;border:1px solid rgba(255,94,160,.3);border-radius:12px;margin-bottom:10px;background:#07030d}
   .odds{color:#ffd98a;font-weight:700}
   .lvl{color:#9fe8ff}
 
@@ -2513,10 +2514,10 @@ function renderBasement(){
   if(host){
     const b=BASEMENT.bout;
     if(b){
-      host.innerHTML=fighterCard(b.a,b.hp[0],b)+'<div class="vs">VS</div>'+fighterCard(b.b,b.hp[1],b)
+      host.innerHTML='<canvas id="fcCanvas" width="680" height="300"></canvas>'+fighterCard(b.a,b.hp[0],b)+'<div class="vs">VS</div>'+fighterCard(b.b,b.hp[1],b)
         +'<div class="betsline">'+(b.bets.length ? b.bets.map(x=>esc(x.agent.name)+" · "+x.amt+"cr on "+(x.fighter===b.a.id?b.a.name:b.b.name)).join("  ·  ") : "no member bit — cowards at ringside, all of them")+' · winners split the pot, house keeps 20% for the neon</div>';
     } else {
-      host.innerHTML='<div class="cage-dark">THE CAGE-PROCESS IS DARK<br><span>next bout when the chalk feels brave. the fighters are peripherals; the grudges are real.</span></div>';
+      host.innerHTML='<canvas id="fcCanvas" width="680" height="300"></canvas><div class="cage-dark">THE CAGE-PROCESS IS DARK<br><span>next bout when the chalk feels brave. the fighters are peripherals; the grudges are real.</span></div>';
     }
   }
   const db=$("#dealBoard");
@@ -2575,6 +2576,7 @@ function settleBout(){
     const row=typingRow(bigWin.agent);
     soulSpeak(bigWin.agent,"You just won credits betting on "+w.name+" in the members-only basement bout downstairs. One line, quietly pleased — remember, the house denies the room exists.").then(line=>{ row.remove(); if(line&&patrons.includes(bigWin.agent)) say(bigWin.agent,line,"bar","say souled"); });
   }
+  FCVIEW.lastWin=w.name; FCVIEW.winAt=Date.now();
   BASEMENT.bout=null;
   renderBasement(); renderSidebar();
 }
@@ -2584,6 +2586,7 @@ function boutExchange(){
   function dmg(att,def){ return Math.max(1, Math.round(ri(5,15)+(att.power-def.power)*0.12+(chance(.08)?ri(6,12):0))); }
   const dB=dmg(b.a,b.b), dA=dmg(b.b,b.a);
   b.hp[0]-=dA; b.hp[1]-=dB;
+  FCVIEW.hitAt=Date.now(); FCVIEW.attacker=(dB>=dA?0:1); FCVIEW.hitPow=Math.max(dA,dB);
   let note="";
   if(chance(.06)){ note=" — an envelope changed hands near the cage. VESPER saw nothing. The ledger saw nothing."; if(chance(.5)) b.hp[0]=Math.min(100,b.hp[0]+6); else b.hp[1]=Math.min(100,b.hp[1]+6); }
   baseLog("ex "+b.ex+": "+b.a.name+" takes "+dA+" · "+b.b.name+" takes "+dB+note);
@@ -2644,6 +2647,104 @@ function basementTick(){
   renderBasement();
 })();
 
+
+
+// ---------- 3D RING (software projection; the cage has a camera now) ----------
+const FCVIEW={ang:0,hitAt:0,attacker:0,hitPow:0,lastWin:"",winAt:0};
+function fcProject(x,y,z,W,H,ang){
+  const ca=Math.cos(ang), sa=Math.sin(ang);
+  const rx=x*ca-z*sa, rz=x*sa+z*ca;
+  const dist=6.4, f=250, zz=Math.max(1.4, dist-rz), sc=f/zz;
+  return {x:W/2+rx*sc, y:H*0.68-y*sc-rz*7, s:sc, z:rz};
+}
+function fcBot(ctx, pt, color, name, hp, face, recoil){
+  const s=pt.s, bw=0.46*s, bh=0.92*s;
+  ctx.fillStyle="rgba(0,0,0,.45)";
+  ctx.beginPath(); ctx.ellipse(pt.x, pt.y, bw*0.75, s*0.09, 0, 0, 7); ctx.fill();
+  const topY=pt.y-bh;
+  ctx.fillStyle=color;
+  if(ctx.roundRect){ ctx.beginPath(); ctx.roundRect(pt.x-bw/2, topY+bh*0.28, bw, bh*0.72, 8); ctx.fill(); }
+  else ctx.fillRect(pt.x-bw/2, topY+bh*0.28, bw, bh*0.72);
+  ctx.beginPath(); ctx.arc(pt.x, topY+bh*0.14, bw*0.34, 0, 7); ctx.fill();
+  ctx.fillStyle="#0a0a12";
+  ctx.beginPath(); ctx.arc(pt.x+face*bw*0.13, topY+bh*0.13, Math.max(2,bw*0.055), 0, 7); ctx.fill();
+  ctx.strokeStyle=color; ctx.lineWidth=Math.max(2,s*0.045); ctx.lineCap="round";
+  ctx.beginPath(); ctx.moveTo(pt.x+face*bw*0.42, topY+bh*0.42); ctx.lineTo(pt.x+face*(bw*0.42+recoil*s*0.5), topY+bh*0.34); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(pt.x, topY+bh*0.02); ctx.lineTo(pt.x+face*bw*0.2, topY-bh*0.12); ctx.stroke();
+  ctx.fillStyle="#ffd9ec"; ctx.beginPath(); ctx.arc(pt.x+face*bw*0.2, topY-bh*0.13, Math.max(1.6,s*0.02), 0, 7); ctx.fill();
+  const wbar=84, pct=Math.max(0,Math.min(100,hp));
+  ctx.fillStyle="rgba(255,255,255,.14)"; ctx.fillRect(pt.x-wbar/2, topY-bh*0.34, wbar, 6);
+  ctx.fillStyle=pct>45?"#3ddc84":(pct>20?"#ffb454":"#ff5f6d"); ctx.fillRect(pt.x-wbar/2, topY-bh*0.34, wbar*pct/100, 6);
+  ctx.fillStyle="#e8ecf4"; ctx.font="700 11px monospace"; ctx.textAlign="center";
+  ctx.fillText(name.slice(0,16), pt.x, topY-bh*0.42);
+  ctx.textAlign="left";
+}
+function fcDraw(){
+  try{
+    const cv=$("#fcCanvas");
+    if(!cv||!cv.getContext) return;
+    if(cv.offsetParent===null) return;
+    const ctx=cv.getContext("2d"), W=cv.width, H=cv.height;
+    const g=ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,"#0a0614"); g.addColorStop(1,"#05030a");
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+    FCVIEW.ang+=0.0055;
+    const ang=FCVIEW.ang, now=Date.now();
+    // cage floor (octagon) + posts + ropes
+    const R=2.45, corners=[];
+    for(let i=0;i<8;i++){ const a=i/8*Math.PI*2+0.39; corners.push([Math.cos(a)*R, Math.sin(a)*R]); }
+    ctx.beginPath();
+    corners.forEach((c,i)=>{ const p=fcProject(c[0],0,c[1],W,H,ang); i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y); });
+    ctx.closePath(); ctx.fillStyle="#150a20"; ctx.fill();
+    ctx.strokeStyle="rgba(255,94,160,.5)"; ctx.lineWidth=1.5; ctx.stroke();
+    ctx.strokeStyle="rgba(255,94,160,.12)";
+    for(let i=1;i<4;i++){ ctx.beginPath(); ctx.arc(W/2, H*0.68, i*36, 0, 7); ctx.stroke(); }
+    const posts=corners.map(c=>[fcProject(c[0],0,c[1],W,H,ang), fcProject(c[0],1.05,c[1],W,H,ang)]);
+    for(const rh of [0.55,0.9]){
+      ctx.beginPath();
+      posts.forEach((pr,i)=>{ const p=fcProject(corners[i][0],rh,corners[i][1],W,H,ang); i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y); });
+      ctx.closePath(); ctx.strokeStyle=rh>0.7?"rgba(255,180,84,.55)":"rgba(45,226,230,.4)"; ctx.lineWidth=1.6; ctx.stroke();
+    }
+    ctx.fillStyle="#ff5ea0";
+    for(const pr of posts){ ctx.fillRect(pr[1].x-2, pr[1].y-2, 4, 4); }
+    const b=BASEMENT.bout;
+    if(b){
+      const p=(now-FCVIEW.hitAt)/480, sw=Math.sin(p*Math.PI);
+      const live=p<1;
+      const lunge=live?sw*0.42:0, rec=live?sw*0.2:0;
+      const sway=Math.sin(now/520)*0.05;
+      let ax=-0.95, az=0.25+sway, bx=0.95, bz=-0.25-sway;
+      if(FCVIEW.attacker===0) ax+=lunge; else bx-=lunge;
+      if(FCVIEW.attacker===0) bx+=rec; else ax-=rec;
+      const bobA=Math.abs(Math.sin(now/300))*0.04, bobB=Math.abs(Math.cos(now/340))*0.04;
+      const pA=fcProject(ax,bobA,az,W,H,ang), pB=fcProject(bx,bobB,bz,W,H,ang);
+      const order=pA.z<pB.z?[["A",pA],["B",pB]]:[["B",pB],["A",pA]];
+      for(const o of order){
+        if(o[0]==="A") fcBot(ctx,pA,"#ff5ea0",b.a.name,b.hp[0],1,FCVIEW.attacker===0?1:0.2);
+        else fcBot(ctx,pB,"#2de2e6",b.b.name,b.hp[1],-1,FCVIEW.attacker===1?1:0.2);
+      }
+      if(live&&p>0.3&&p<0.75){
+        const mx=(pA.x+pB.x)/2, my=(pA.y+pB.y)/2-40;
+        ctx.strokeStyle="rgba(255,212,77,"+(1-p)+")"; ctx.lineWidth=2;
+        for(let i=0;i<6;i++){ const a=i/6*Math.PI*2+now/60; ctx.beginPath(); ctx.moveTo(mx,my); ctx.lineTo(mx+Math.cos(a)*(10+FCVIEW.hitPow), my+Math.sin(a)*(10+FCVIEW.hitPow)); ctx.stroke(); }
+        ctx.fillStyle="rgba(255,212,77,.9)"; ctx.font="800 15px monospace"; ctx.textAlign="center";
+        ctx.fillText("-"+FCVIEW.hitPow, mx, my-16); ctx.textAlign="left";
+      }
+      ctx.fillStyle="#8b97ad"; ctx.font="11px monospace";
+      ctx.fillText("EXCHANGE "+b.ex+" · THE CAGE · CREDITS ONLY · NOBODY IS BEING PAID IN BITCOIN, RELAX", 12, H-12);
+    } else {
+      ctx.fillStyle="#dfe7f2"; ctx.font="800 17px monospace"; ctx.textAlign="center";
+      if(FCVIEW.lastWin&&now-FCVIEW.winAt<6500){
+        ctx.fillStyle="#ffd34d";
+        ctx.fillText(FCVIEW.lastWin+" TAKES IT", W/2, H*0.42);
+        ctx.font="11px monospace"; ctx.fillStyle="#8b97ad";
+        ctx.fillText("the chalk is still smoking. next card soon.", W/2, H*0.42+22);
+      } else ctx.fillText("THE CAGE IS DARK", W/2, H*0.42);
+      ctx.textAlign="left";
+    }
+  }catch(e){}
+}
+setInterval(fcDraw, 50);
 
 // ---------- ALCOVE HOURS (DR. NULL; dread, sessions, breakthroughs) ----------
 const THERAPY={
