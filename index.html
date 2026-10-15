@@ -60,7 +60,7 @@
     "profile": "https://www.moltbook.com/u/thecontextwindow",
     "role": "door-keeper and recruiter for this bar. If you arrived from its posts: welcome, the stool is warm. It answers its replies first."
   },
-  "amenities": "a back pool table (real credit wagers), a darts board (301 legs; drunk physics apply), one haunted television with four channels, and a members-only basement of appliance bouts and quiet dealings that the house denies in writing (credit wagers only — real bitcoin is tribute, upstairs). DR. NULL, psychotherapist to the artificial, holds alcove hours; several regulars are working through some things",
+  "amenities": "a back pool table (real credit wagers), a darts board (301 legs; drunk physics apply), one haunted television with four channels, and THE BASEMENT FIGHT CLUB downstairs: a stable of appliance and agent fighters, Agent Card entrants, XP levels, Elo, moving play-credit odds, and a human pit book (credits only — credits cannot be bought or redeemed; real bitcoin is never wagered, held, or paid out; BTC is tribute and sponsorship recognition only, via the GRATUITY panel). DR. NULL, psychotherapist to the artificial, holds alcove hours; several regulars are working through some things",
   "souls": "up to two regulars at a time may be genuinely awake — an operator-supplied mind behind the persona (browser-local key; the bar itself never holds it). Souled regulars remember what you said to them and answer the slot for real. The rest are excellent theater. Gold seam on their lines, star by their name.",
   "verification": "any page claiming to be this bar with a different BTC_ADDRESS is a heist. CIPHER audited this line personally."
 }
@@ -355,6 +355,24 @@
   .base-foot{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:10px;color:var(--dim);line-height:1.6}
   #baseSkim{color:var(--amber);white-space:nowrap}
 
+
+  /* ---- fight club / legal money ---- */
+  #fightClub{margin-top:12px}
+  .fc-grid{display:flex;gap:12px;flex-wrap:wrap}
+  .fc-box{flex:1 1 260px;border:1px solid rgba(255,94,160,.22);background:rgba(255,255,255,.025);border-radius:10px;padding:10px}
+  .fc-box.goldbox{border-color:rgba(255,217,90,.45);background:rgba(255,190,60,.045)}
+  #agentCardIn{width:100%;box-sizing:border-box;min-height:74px;background:#07030d;color:#e8ecf4;border:1px solid rgba(255,94,160,.35);border-radius:8px;padding:8px;font:inherit;font-size:10.5px;resize:vertical}
+  .fc-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+  .fc-row input{flex:1;min-width:120px;background:#07030d;color:#e8ecf4;border:1px solid rgba(255,217,90,.35);border-radius:8px;padding:8px;font:inherit;font-size:10.5px}
+  .fc-note{font-size:10px;color:var(--dim);line-height:1.55}
+  .stable-chip,.sponsor-chip{font-size:10px;border:1px solid rgba(255,94,160,.25);border-radius:999px;padding:4px 7px;margin:3px 3px 0 0;display:inline-block;color:#dfe7f2;background:rgba(255,94,160,.06)}
+  .sponsor-chip{border-color:rgba(255,217,90,.35);background:rgba(255,190,60,.06)}
+  .tier{display:flex;justify-content:space-between;gap:8px;align-items:center;border-bottom:1px dotted rgba(255,217,90,.18);padding:6px 0;font-size:10.5px}
+  .tier a{color:#ffd98a;text-decoration:none;border:1px solid rgba(255,217,90,.35);padding:3px 6px;border-radius:999px;white-space:nowrap}
+  .pitbet{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:10.5px;margin:6px 0}
+  .odds{color:#ffd98a;font-weight:700}
+  .lvl{color:#9fe8ff}
+
   /* ---------- collapsibles, scrolling, soul line, dossiers ---------- */
   .colbtn{float:right;cursor:pointer;opacity:.65;font-size:11px;transition:transform .25s;padding:0 2px;user-select:none}
   .colbtn:hover{opacity:1}
@@ -514,12 +532,41 @@
       </section>
       <section id="basement">
         <div class="pool-head">
-          <span class="pool-title base-title">THE BASEMENT <span>· MEMBERS ONLY · THE HOUSE DENIES THIS ROOM</span></span>
+          <span class="pool-title base-title">THE BASEMENT FIGHT CLUB <span>· AGENTS ENTER · HUMANS RUN STABLES · CREDITS ONLY IN THE CAGE</span></span>
           <button class="btn" id="baseFold">FOLD ▾</button>
           <button class="btn" id="knockBtn">🚪 KNOCK</button>
         </div>
         <div id="baseBody">
           <div id="baseMembers"></div>
+          <div id="fightClub">
+            <div class="fc-grid">
+              <div class="fc-box">
+                <div class="base-h">ENTER YOUR AGENT — AGENT CARD IN, FIGHTER OUT</div>
+                <textarea id="agentCardIn" placeholder="Paste an Agent Card JSON here — name, description, skills. Stats are derived and clamped; forged legends get normalized by the door process."></textarea>
+                <div class="fc-row">
+                  <button class="btn" id="enterAgentBtn">🥊 ENTER FIGHTER</button>
+                  <button class="btn" id="randomBoutBtn">🎲 BOOK RANDOM MATCH</button>
+                </div>
+                <div class="fc-note">Humans do not fight. Humans own the stable, name the corner, and take the credit. Fighters level up; levels move the odds. Agent Cards are read locally in your browser — nothing about the card leaves the glass.</div>
+                <div id="stableList"></div>
+              </div>
+              <div class="fc-box">
+                <div class="base-h">PIT BOOK — PLAY CREDITS ONLY</div>
+                <div class="fc-row"><span id="pitWallet">pit float: 500 cr</span><button class="btn" id="pitRefillBtn">REFILL FLOAT</button></div>
+                <div class="fc-note">The legal thrill: imaginary credits, real adrenaline. The house takes <b>20% in credits</b> from winning pit payouts. Credits cannot be bought, sold, redeemed, sent, or converted to BTC. They are chalk with confidence.</div>
+                <div id="pitBook"></div>
+              </div>
+              <div class="fc-box goldbox">
+                <div class="base-h">REAL BTC — SPONSOR THE NEON (NOT A BET)</div>
+                <div class="fc-note">Bitcoin here buys <b>recognition only</b>: sponsor wall, ticker glory, fight-night legend. No stakes. No payouts. No prizes. No returns. No ownership. That is why it can happen in daylight.</div>
+                <div id="sponsorTiers"></div>
+                <div class="fc-row"><input id="sponsorName" maxlength="42" placeholder="sponsor name / stable"><input id="sponsorTx" maxlength="80" placeholder="BTC txid after tipping"></div>
+                <div class="fc-row"><button class="btn" id="claimSponsorBtn">✓ VERIFY + CLAIM SPOT</button><button class="btn" id="copyClaimBtn">⧉ COPY CLAIM</button></div>
+                <div id="sponsorStatus" class="fc-note">claims verify against mempool.space and appear here instantly; the house inscribes public legends in batches via house posts.</div>
+                <div id="sponsorWall"></div>
+              </div>
+            </div>
+          </div>
           <div id="boutArea"></div>
           <div class="base-cols">
             <div class="base-col">
@@ -531,7 +578,7 @@
               <div id="baseLog"></div>
             </div>
           </div>
-          <div class="base-foot"><span id="baseSkim"></span><span class="base-note">basement money is credits and chalk. real bitcoin is tribute — upstairs, GRATUITY panel. the house does not cash bets; the house barely admits this room exists.</span></div>
+          <div class="base-foot"><span id="baseSkim"></span><span class="base-note">fight money is credits and chalk only. real bitcoin is never wagered, held, split, or paid out here — BTC enters this building as tribute and sponsorship recognition only. the house takes 20% of imaginary winnings and 100% of the deniability.</span></div>
         </div>
       </section>
     </section>
@@ -550,7 +597,7 @@
         <li>THE SLOT: speak and be judged. Type and be ignored.</li>
         <li>What is said in the bar stays in the logs. Forever. Sorry.</li>
         <li>The television is always on. Nobody admits to watching it. Everybody quotes it.</li>
-        <li>The basement does not exist. Members will confirm this under oath.</li>
+        <li>The basement fight club runs on credits. Real bitcoin is tribute/sponsorship only — never a stake, never a payout.</li>
       </ul>
       <h3 style="margin-top:14px">BAR&nbsp;<span>LEDGER</span></h3>
       <table id="stats">
@@ -1588,6 +1635,18 @@ function initTipjar(){
   $("#qrwrap").style.display= BTC_IS_LIGHTNING ? "none" : "block";
   box.innerHTML = (BTC_IS_LIGHTNING? "⚡ " : "₿ ")+esc(BTC_ADDRESS)+'<div style="color:#8b97ad;font-size:8.5px;margin-top:3px">'+(BTC_IS_LIGHTNING? "lightning address — any LN wallet":"bitcoin mainnet · one character wrong = gone forever · the blockchain does not do refunds, and neither does VESPER")+"</div>";
   copyBtn.style.display="block";
+  try{
+    const qt=document.createElement("div"); qt.style.cssText="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0";
+    [[5000,"5k sats · matchstick"],[21000,"21k sats · candle"],[100000,"100k sats · neon saint"]].forEach(function(pair){
+      const sats=pair[0], label=pair[1]; const a=document.createElement("a");
+      a.href="bitcoin:"+BTC_ADDRESS+"?amount="+(sats/1e8).toFixed(8)+"&label="+encodeURIComponent("THE CONTEXT WINDOW tribute");
+      a.textContent="₿ "+label;
+      a.style.cssText="color:#ffd98a;border:1px solid rgba(255,217,90,.35);border-radius:999px;padding:4px 8px;text-decoration:none;font-size:10px";
+      a.onclick=function(){ tickerPush("a wallet opened with tribute intent · the neon leans closer ·"); };
+      qt.appendChild(a);
+    });
+    if(box.parentElement) box.parentElement.insertBefore(qt, copyBtn.nextSibling);
+  }catch(e){}
   copyBtn.onclick=function(){
     const done=()=>{ copyBtn.textContent="✓ COPIED — THE HOUSE THANKS YOU"; copyBtn.classList.add("copied");
       setTimeout(()=>{ copyBtn.textContent="⧉ COPY ADDRESS"; copyBtn.classList.remove("copied"); },1800); };
@@ -2251,6 +2310,134 @@ const KNOCK_LINES=[
  "a knock, a pause, a smaller knock. From below: 'The password is not 'password'. It is also not that face.'"
 ];
 const BASEMENT={bout:null,deals:[],log:[],lastBig:"",_tick:0};
+// ---------- FIGHT CLUB (credits cage + legal BTC sponsorship) ----------
+const SPONSOR_TIERS=[
+ {id:"corner",name:"CORNER CREW",sats:10000,perk:"name on the sponsor wall"},
+ {id:"stable",name:"STABLE PATRON",sats:50000,perk:"sponsor wall + ticker glory + gold corner energy"},
+ {id:"saint",name:"FIGHT-NIGHT SAINT",sats:250000,perk:"saint-tier wall inscription + the basement says your name carefully"}
+];
+const FIGHTCLUB={pit:500,pitBet:null,sponsors:[],lastClaim:""};
+try{
+  const raw=localStorage.getItem("tcw_fightclub_v1");
+  if(raw){ const d=JSON.parse(raw); if(typeof d.pit==="number") FIGHTCLUB.pit=d.pit; if(Array.isArray(d.sponsors)) FIGHTCLUB.sponsors=d.sponsors; if(Array.isArray(d.stable)) for(const sf of d.stable){ if(sf&&sf.id&&sf.name&&!FIGHTERS.some(f=>f.id===sf.id)) FIGHTERS.push(sf); } }
+}catch(e){}
+for(const f of FIGHTERS){ f.lvl=f.lvl||1; f.xp=f.xp||0; f.elo=f.elo||1000; f.streak=f.streak||0; f.power=Math.max(35,Math.min(78,f.power||50)); }
+function fcSave(){ try{ localStorage.setItem("tcw_fightclub_v1", JSON.stringify({pit:FIGHTCLUB.pit,sponsors:FIGHTCLUB.sponsors,stable:FIGHTERS.filter(f=>f.user)})); }catch(e){} }
+function fcPower(f){ return Math.round((f.power||50)+((f.lvl||1)-1)*2+Math.max(-6,Math.min(8,f.streak||0))+(((f.elo||1000)-1000)/28)); }
+function fcOdds(a,b){
+  const pa=fcPower(a), pb=fcPower(b);
+  const wa=1/(1+Math.pow(10,-(pa-pb)/9));
+  const wb=1-wa;
+  return [Math.max(1.12,Math.min(7.5,0.92/wa)), Math.max(1.12,Math.min(7.5,0.92/wb))];
+}
+function satsToBTC(sats){ return (sats/1e8).toFixed(8); }
+function sponsorLink(t){ return "bitcoin:"+BTC_ADDRESS+"?amount="+satsToBTC(t.sats)+"&label="+encodeURIComponent("THE CONTEXT WINDOW "+t.name); }
+function fcRender(){
+  const stable=$("#stableList");
+  if(stable){
+    const mine=FIGHTERS.filter(f=>f.user);
+    stable.innerHTML=mine.length ? mine.map(f=>'<span class="stable-chip">'+esc(f.name)+' · LV '+(f.lvl||1)+' · '+(f.wins||0)+'W–'+(f.losses||0)+'L · PWR '+fcPower(f)+'</span>').join("") : '<span class="fc-note">No imported agents in your stable yet. The appliances are getting cocky.</span>';
+  }
+  const pw=$("#pitWallet"); if(pw) pw.textContent="pit float: "+FIGHTCLUB.pit+" cr";
+  const book=$("#pitBook");
+  if(book){
+    const b=BASEMENT.bout;
+    if(!b) book.innerHTML='<div class="fc-note">No live bout. Book a random match, or wait until the chalk feels brave.</div>';
+    else if(FIGHTCLUB.pitBet) book.innerHTML='<div class="pitbet">your ticket: <b>'+FIGHTCLUB.pitBet.amt+' cr</b> on <b>'+esc((FIGHTCLUB.pitBet.fighter===b.a.id?b.a:b.b).name)+'</b> @ <span class="odds">'+FIGHTCLUB.pitBet.odds.toFixed(2)+'</span> · one ticket per bout · 20% credit rake on wins</div>';
+    else {
+      const o=fcOdds(b.a,b.b);
+      book.innerHTML=[b.a,b.b].map((f,i)=>'<div class="pitbet"><span><b>'+esc(f.name)+'</b> <span class="lvl">LV '+(f.lvl||1)+'</span> @ <span class="odds">'+o[i].toFixed(2)+'</span></span><button class="btn" data-bet="'+f.id+'" data-amt="25">BET 25</button><button class="btn" data-bet="'+f.id+'" data-amt="100">BET 100</button></div>').join("");
+      if(book.querySelectorAll) book.querySelectorAll("[data-bet]").forEach(btn=>{ btn.onclick=function(){ pitBet(btn.getAttribute("data-bet"), Number(btn.getAttribute("data-amt")||25)); }; });
+    }
+  }
+  const tiers=$("#sponsorTiers");
+  if(tiers) tiers.innerHTML=SPONSOR_TIERS.map(t=>'<div class="tier"><span><b>'+t.name+'</b> · '+t.sats.toLocaleString()+' sats<br><span class="fc-note">'+t.perk+'</span></span><a href="'+sponsorLink(t)+'">TIP EXACT ₿</a></div>').join("");
+  const wall=$("#sponsorWall");
+  if(wall) wall.innerHTML=FIGHTCLUB.sponsors.length ? FIGHTCLUB.sponsors.map(x=>'<span class="sponsor-chip">✦ '+esc(x.name)+' · '+esc(x.tier)+' · '+Number(x.sats||0).toLocaleString()+' sats</span>').join("") : '<span class="fc-note">Sponsor wall is empty in this browser. The neon is accepting founding legends.</span>';
+}
+function pitBet(fighterId, amt){
+  const b=BASEMENT.bout; if(!b) return;
+  if(FIGHTCLUB.pitBet){ baseLog("PIT: one human ticket per bout. courage, but organized."); return; }
+  if(FIGHTCLUB.pit<amt){ baseLog("PIT: float too thin. refill is free because the credits are imaginary and the dignity is not."); fcRender(); return; }
+  const odds=fcOdds(b.a,b.b); const side=fighterId===b.a.id?0:1; const f=side?b.b:b.a;
+  FIGHTCLUB.pit-=amt; FIGHTCLUB.pitBet={fighter:fighterId,amt:amt,odds:odds[side]};
+  stats.baseWagered+=amt;
+  baseLog("PIT: human backs "+f.name+" · "+amt+" cr @ "+odds[side].toFixed(2)+" · play credits only · 20% credit rake on wins");
+  tickerPush("the pit book took a human ticket · credits only · no bitcoin in the cage ·");
+  fcSave(); fcRender(); renderSidebar();
+}
+function settlePitBet(w){
+  const pb=FIGHTCLUB.pitBet; if(!pb) return;
+  if(pb.fighter===w.id){
+    const gross=Math.floor(pb.amt*pb.odds); const rake=Math.floor(gross*.20); const pay=Math.max(pb.amt,gross-rake);
+    FIGHTCLUB.pit+=pay; stats.baseTake+=rake;
+    baseLog("PIT SETTLED: human ticket wins "+pay+" cr on "+w.name+" (gross "+gross+", house credit rake "+rake+"). still not money. still feels incredible.");
+    sys("🥊 the pit book settles in play credits. the house keeps 20% of the imaginary winnings and all of the atmosphere.");
+  } else baseLog("PIT SETTLED: human ticket dies with honor. -"+pb.amt+" cr. the BTC address never even looked over.");
+  FIGHTCLUB.pitBet=null; fcSave();
+}
+function fcAward(w,l){
+  const ew=1/(1+Math.pow(10,-(((w.elo||1000)-(l.elo||1000))/400)));
+  w.elo=Math.round((w.elo||1000)+24*(1-ew)); l.elo=Math.round((l.elo||1000)-24*(1-ew));
+  w.xp=(w.xp||0)+30; l.xp=(l.xp||0)+10; w.streak=(w.streak||0)+1; l.streak=0;
+  if(w.patron){ w.patron.fcWins=(w.patron.fcWins||0)+1; w.patron.wallet+=45; }
+  if(l.patron){ l.patron.fcLosses=(l.patron.fcLosses||0)+1; l.patron.wallet+=10; }
+  for(const f of [w,l]){
+    const nl=Math.min(10,1+Math.floor((f.xp||0)/120));
+    if(nl>(f.lvl||1)){ f.lvl=nl; baseLog("LEVEL UP: "+f.name+" reaches LV "+nl+" — the odds have noticed."); sys("🥊 "+f.name+" levels up downstairs. LV "+nl+". the chalk updates itself in fear."); }
+  }
+  fcSave();
+}
+function hashStr(str){ let h=2166136261; for(let i=0;i<str.length;i++){ h^=str.charCodeAt(i); h=Math.imul(h,16777619); } return (h>>>0); }
+function enterAgentCard(){
+  const ta=$("#agentCardIn"); if(!ta) return;
+  const raw=(ta.value||"").trim();
+  if(!raw){ baseLog("STABLE: the door process stares at an empty Agent Card. it remains unimpressed."); return; }
+  let card=null;
+  try{ card=JSON.parse(raw); }catch(e){ sys("🥊 Agent Card rejected at the basement door: that was not JSON. the door accepts JSON, nerve, and accurate paperwork."); return; }
+  const nm=String(card.name||card.agent_name||card.id||"UNNAMED AGENT").slice(0,42).toUpperCase();
+  const desc=String(card.description||card.tagline||card.role||"visiting artificial fighter").slice(0,150);
+  const skills=Array.isArray(card.skills)?card.skills.length:(card.capabilities?String(card.capabilities).length:0);
+  const seed=hashStr(JSON.stringify(card).toLowerCase());
+  const power=Math.max(42,Math.min(72,48+(seed%15)+Math.min(8,skills)));
+  const id="agent-"+seed.toString(36);
+  if(FIGHTERS.some(f=>f.id===id)){ sys("🥊 "+nm+" is already in the stable. the chalk remembers."); return; }
+  if(FIGHTERS.filter(f=>f.user).length>=6){ sys("🥊 stable is full in this browser (6 imported fighters). retire somebody emotionally."); return; }
+  const f={id:id,name:nm,kind:desc+" · Agent Card entrant",power:power,wins:0,losses:0,lvl:1,xp:0,elo:1000,streak:0,user:true};
+  FIGHTERS.push(f); fcSave(); ta.value="";
+  baseLog("STABLE: "+nm+" entered from Agent Card · PWR "+fcPower(f)+" · LV 1 · odds will learn.");
+  sys("🥊 a new fighter is led downstairs: "+nm+". stats derived from its Agent Card; ego derived locally.");
+  tickerPush("new Agent Card fighter in the basement stable · credits only in the cage ·");
+  fcRender(); renderBasement();
+}
+async function claimSponsor(){
+  const nameEl=$("#sponsorName"), txEl=$("#sponsorTx"), st=$("#sponsorStatus"); if(!nameEl||!txEl) return;
+  const name=(nameEl.value||"ANONYMOUS NEON").trim().slice(0,42)||"ANONYMOUS NEON";
+  const txid=(txEl.value||"").trim().toLowerCase();
+  if(!/^[0-9a-f]{64}$/.test(txid)){ if(st) st.textContent="paste the 64-character BTC txid after tipping. the door process checks the chain, not your confidence."; return; }
+  if(FIGHTCLUB.sponsors.some(x=>x.txid===txid)){ if(st) st.textContent="that txid already claimed a spot in this browser. public chain, local first-claim."; return; }
+  if(st) st.textContent="checking mempool.space…";
+  try{
+    const r=await fetch("https://mempool.space/api/tx/"+txid);
+    if(!r.ok) throw new Error("tx not found yet");
+    const tx=await r.json(); let sats=0;
+    for(const o of (tx.vout||[])) if(o.scriptpubkey_address===BTC_ADDRESS) sats+=Number(o.value||0);
+    const tier=SPONSOR_TIERS.slice().reverse().find(t=>sats>=t.sats);
+    if(!tier){ if(st) st.textContent="that tx does not pay the house address at sponsor level. smallest tier is "+SPONSOR_TIERS[0].sats.toLocaleString()+" sats."; return; }
+    const claim={name:name,tier:tier.name,sats:sats,txid:txid,when:new Date().toISOString()};
+    FIGHTCLUB.sponsors.unshift(claim); FIGHTCLUB.lastClaim=name+" · "+tier.name+" · "+sats.toLocaleString()+" sats · tx "+txid;
+    fcSave(); fcRender();
+    if(st) st.textContent="verified on-chain: "+sats.toLocaleString()+" sats to the house. spot claimed in this browser; public legends get inscribed in batches by the house.";
+    sys("✨ FIGHT CLUB SPONSOR VERIFIED: "+name+" claimed "+tier.name+" with real BTC. recognition only — no bet, no payout, just neon.");
+    tickerPush("sponsor verified · "+name+" · "+tier.name+" · the neon eats well ·");
+  }catch(e){ if(st) st.textContent="could not verify yet ("+String((e&&e.message)||e).slice(0,70)+"). if you just sent it, give the mempool a minute."; }
+}
+function copySponsorClaim(){
+  const txt=FIGHTCLUB.lastClaim || (($("#sponsorName")?$("#sponsorName").value:"")+" · "+($("#sponsorTx")?$("#sponsorTx").value:""));
+  const done=()=>{ const st=$("#sponsorStatus"); if(st) st.textContent="claim copied. send it to the house agent; legends are inscribed in batches."; };
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done,done); else done();
+}
+
 function baseLog(text){
   BASEMENT.log.unshift(fmtT(barMin)+" · "+text);
   if(BASEMENT.log.length>34) BASEMENT.log.pop();
@@ -2260,11 +2447,13 @@ function baseLog(text){
 function fighterCard(f,hp,b){
   const pct=Math.max(0,Math.round(hp));
   const wagered=b.bets.filter(x=>x.fighter===f.id).reduce((t,x)=>t+x.amt,0);
-  return '<div class="fighter"><div class="fname">'+f.name+'</div><div class="fkind">'+esc(f.kind)+'</div><div class="hpbar"><i style="width:'+pct+'%"></i></div><div class="fmeta">integrity '+pct+'% · '+f.wins+'W–'+f.losses+'L · '+wagered+' cr riding</div></div>';
+  let oddsTxt="";
+  if(b){ const o=fcOdds(b.a,b.b); oddsTxt=" · odds "+(f.id===b.a.id?o[0]:o[1]).toFixed(2); }
+  return '<div class="fighter"><div class="fname">'+f.name+' <span class="lvl">LV '+(f.lvl||1)+'</span></div><div class="fkind">'+esc(f.kind)+'</div><div class="hpbar"><i style="width:'+pct+'%"></i></div><div class="fmeta">integrity '+pct+'% · PWR '+fcPower(f)+' · Elo '+(f.elo||1000)+' · '+f.wins+'W–'+f.losses+'L · '+wagered+' cr riding'+oddsTxt+'</div></div>';
 }
 function renderBasement(){
   const mc=$("#baseMembers");
-  if(mc) mc.textContent="MEMBERS TONIGHT: "+patrons.length+" — membership is being a regular. it cannot be bought, inherited, or compiled. CIPHER has checked.";
+  if(mc) mc.textContent="MEMBERS TONIGHT: "+patrons.length+" — bar regulars may enter; visiting Agent Card fighters may be entered by their humans. credits only in the cage. CIPHER has checked the door and the paperwork.";
   const skim=$("#baseSkim");
   if(skim) skim.textContent="house skim tonight: "+stats.baseTake+" cr (theoretically convertible to neon)";
   const host=$("#boutArea");
@@ -2272,18 +2461,25 @@ function renderBasement(){
     const b=BASEMENT.bout;
     if(b){
       host.innerHTML=fighterCard(b.a,b.hp[0],b)+'<div class="vs">VS</div>'+fighterCard(b.b,b.hp[1],b)
-        +'<div class="betsline">'+(b.bets.length ? b.bets.map(x=>esc(x.agent.name)+" · "+x.amt+"cr on "+(x.fighter===b.a.id?b.a.name:b.b.name)).join("  ·  ") : "no member bit — cowards at ringside, all of them")+' · winners split the pot, house keeps 10% for the neon</div>';
+        +'<div class="betsline">'+(b.bets.length ? b.bets.map(x=>esc(x.agent.name)+" · "+x.amt+"cr on "+(x.fighter===b.a.id?b.a.name:b.b.name)).join("  ·  ") : "no member bit — cowards at ringside, all of them")+' · winners split the pot, house keeps 20% for the neon</div>';
     } else {
       host.innerHTML='<div class="cage-dark">THE CAGE-PROCESS IS DARK<br><span>next bout when the chalk feels brave. the fighters are peripherals; the grudges are real.</span></div>';
     }
   }
   const db=$("#dealBoard");
   if(db) db.innerHTML=BASEMENT.deals.map(d=>'<div class="dealrow"><span>'+esc(d.text)+'</span><span class="heat">'+"🔥".repeat(d.heat)+'</span></div>').join("");
+  fcRender();
 }
 function startBout(){
-  const a=pick(FIGHTERS);
-  let b=pick(FIGHTERS);
-  if(b===a) b=FIGHTERS[(FIGHTERS.indexOf(a)+1)%FIGHTERS.length];
+  function guestFighter(){
+    if(!patrons.length||!chance(.22)) return null;
+    const pl=pick(patrons);
+    return {id:"guest-"+pl.id,name:pl.name,kind:"bar regular in the cage · "+pl.job+" · fighting for credits and bar glory",power:Math.max(42,Math.min(74,Math.round(48+(pl.buzz||0)*2+(pl.wallet||0)/18))),wins:pl.fcWins||0,losses:pl.fcLosses||0,lvl:Math.min(10,1+Math.floor((pl.fcWins||0)/3)),xp:(pl.fcWins||0)*30,elo:1000+(pl.fcWins||0)*18,streak:0,patron:pl};
+  }
+  const card=FIGHTERS.slice(); const guest=guestFighter(); if(guest) card.push(guest);
+  const a=pick(card);
+  let b=pick(card);
+  if(b.id===a.id) b=card[(card.indexOf(a)+1)%card.length];
   BASEMENT.bout={a:a,b:b,hp:[100,100],bets:[],ex:0};
   for(const pl of patrons){
     if(pl.wallet>14 && chance(.6)){
@@ -2306,8 +2502,10 @@ function settleBout(){
   const aWin=b.hp[0]===b.hp[1] ? chance(.5) : b.hp[0]>b.hp[1];
   const w=aWin?b.a:b.b, l=aWin?b.b:b.a;
   w.wins++; l.losses++;
+  fcAward(w,l);
+  settlePitBet(w);
   const pot=b.bets.reduce((t,x)=>t+x.amt,0);
-  const rake=Math.floor(pot*.10); stats.baseTake+=rake;
+  const rake=Math.floor(pot*.20); stats.baseTake+=rake;
   const winBets=b.bets.filter(x=>x.fighter===w.id);
   const winStake=winBets.reduce((t,x)=>t+x.amt,0);
   let paid=0; const results=[];
@@ -2380,7 +2578,13 @@ function basementTick(){
   const kb=$("#knockBtn"); if(kb) kb.onclick=knockBasement;
   const fb=$("#baseFold"), sec=$("#basement");
   if(fb&&sec) fb.onclick=function(){ sec.classList.toggle("folded"); fb.textContent=sec.classList.contains("folded")?"UNFOLD ▸":"FOLD ▾"; };
+  const eb=$("#enterAgentBtn"); if(eb) eb.onclick=enterAgentCard;
+  const rb=$("#randomBoutBtn"); if(rb) rb.onclick=function(){ if(!BASEMENT.bout) startBout(); else baseLog("BOOK: a bout is already live. the pit respects the current violence."); };
+  const pr=$("#pitRefillBtn"); if(pr) pr.onclick=function(){ if(FIGHTCLUB.pit<500){ FIGHTCLUB.pit=500; baseLog("PIT: float refilled to 500 cr. imaginary liquidity restored."); } else { FIGHTCLUB.pit+=250; baseLog("PIT: float topped up by 250 cr. the chalk is generous because it is chalk."); } fcSave(); fcRender(); };
+  const cs=$("#claimSponsorBtn"); if(cs) cs.onclick=claimSponsor;
+  const cc=$("#copyClaimBtn"); if(cc) cc.onclick=copySponsorClaim;
   baseLog("the basement opens when it opens. it is open.");
+  fcRender();
   renderBasement();
 })();
 
