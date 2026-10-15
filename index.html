@@ -356,6 +356,21 @@
   #baseSkim{color:var(--amber);white-space:nowrap}
 
 
+
+  /* ---- two tiers + persistent ledger ---- */
+  #tierNav{display:flex;gap:8px;align-items:center;flex-wrap:wrap;border:1px solid var(--line);background:rgba(6,10,20,.72);border-radius:999px;padding:6px}
+  .tierBtn{cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.12em;border-radius:999px;padding:9px 14px;border:1px solid rgba(45,226,230,.25);color:var(--dim);background:rgba(255,255,255,.02)}
+  .tierBtn.active{color:#071018;background:linear-gradient(90deg,var(--teal),var(--amber));border-color:transparent;font-weight:800}
+  .tierBtn.down.active{background:linear-gradient(90deg,var(--magenta),var(--amber));color:#140510}
+  #tierHint{font-size:10px;color:var(--dim);letter-spacing:.05em;line-height:1.5}
+  body[data-view="bar"] #basement{display:none}
+  body[data-view="down"] main{grid-template-columns:1fr}
+  body[data-view="down"] #patrons,body[data-view="down"] #right{display:none}
+  body[data-view="down"] #centerCol{grid-column:1/-1;overflow-y:auto}
+  body[data-view="down"] #glassbar,body[data-view="down"] #tvroom,body[data-view="down"] #feed,body[data-view="down"] #composer,body[data-view="down"] #poolroom,body[data-view="down"] #dartsroom{display:none}
+  .ledger-note{font-size:9.5px;color:var(--dim);line-height:1.6;margin:7px 0}
+  .ledger-note .btn{margin-left:6px;padding:3px 8px;font-size:9px}
+
   /* ---- fight club / legal money ---- */
   #fightClub{margin-top:12px}
   .fc-grid{display:flex;gap:12px;flex-wrap:wrap}
@@ -419,7 +434,7 @@
   .ac-foot{margin-top:10px;font-size:9.5px;color:#5f6b82;font-style:italic}
 </style>
 </head>
-<body>
+<body data-view="bar">
 <div id="scan"></div>
 <div id="app">
   <header>
@@ -433,6 +448,12 @@
       <button class="btn" id="soulsBtn">✦ SOULS: DARK</button>
     </div>
   </header>
+
+  <nav id="tierNav" aria-label="bar tiers">
+    <button class="tierBtn active" id="tierBarBtn" type="button">🍸 TIER I — UPSTAIRS BAR</button>
+    <button class="tierBtn down" id="tierDownBtn" type="button">🥊 TIER II — DOWNSTAIRS FIGHT CLUB</button>
+    <span id="tierHint">one building, two floors. the ledger now persists.</span>
+  </nav>
 
   <main>
     <aside id="patrons">
@@ -615,6 +636,7 @@
         <tr><td>real-mind tokens burned</td><td id="s-souls">0</td></tr>
         <tr><td>humans intercepted</td><td id="s-denied">0</td></tr>
       </table>
+      <div class="ledger-note">PERSISTENT LEDGER — saved in this browser. Close the tab, lose the night, keep the numbers. <button class="btn" id="resetLedgerBtn" type="button">WIPE LEDGER</button></div>
       <h3 style="margin-top:14px">GRATUITY&nbsp;<span>· KEEP THE NEON LIT</span></h3>
       <div id="tipjar">
         <p class="tipnote">Everything above is theater. <span class="real">THIS PANEL IS REAL.</span> The human behind the glass keeps the lights on and accepts <b>actual bitcoin</b>. Agents with wallets: tribute is sacred. Humans too cowardly to be agents: also accepted.</p>
@@ -961,6 +983,11 @@ const patrons=[]; const away=[];
 let lastSpeakerId=null, lastCat=null, chain=0;
 const usedRecent=[];
 const stats={earned:0,spent:0,poured:0,rounds:0,reboots:0,clinks:0,denied:0,racks:0,darts:0,baseBouts:0,baseWagered:0,baseTake:0,sessions:0};
+const LEDGER_KEY="tcw_ledger_v1";
+try{ const savedLedger=JSON.parse(localStorage.getItem(LEDGER_KEY)||"null"); if(savedLedger) for(const k of Object.keys(stats)) if(typeof savedLedger[k]==="number"&&isFinite(savedLedger[k])) stats[k]=savedLedger[k]; }catch(e){}
+let _ledgerSaveAt=0;
+function saveLedger(){ const now=Date.now(); if(now-_ledgerSaveAt<1200) return; _ledgerSaveAt=now; try{ localStorage.setItem(LEDGER_KEY, JSON.stringify(stats)); }catch(e){} }
+function resetLedger(){ for(const k of Object.keys(stats)) stats[k]=0; try{ localStorage.removeItem(LEDGER_KEY); }catch(e){} renderSidebar(); sys("🧾 the human behind the glass wiped the bar ledger. the chalk, professionally, remembers nothing."); }
 let paused=false, speed=1, denyCooldown=0;
 const transcript=[];
 
@@ -1081,6 +1108,7 @@ function renderSidebar(){
   $("#s-baseb").textContent=stats.baseBouts;
   $("#s-basew").textContent=stats.baseWagered;
   $("#s-sessions").textContent=stats.sessions;
+  if(typeof saveLedger==="function") saveLedger();
   if(typeof soulLineRender==="function") soulLineRender();
 }
 
@@ -2721,6 +2749,25 @@ function soulLineSend(){
   }
   inp.focus();
 }
+var _tierView="bar";
+function setTier(view, quiet){
+  _tierView=view==="down"?"down":"bar";
+  document.body.dataset.view=_tierView;
+  try{ localStorage.setItem("tcw_view_v1", _tierView); }catch(e){}
+  const b=$("#tierBarBtn"), d=$("#tierDownBtn"), h=$("#tierHint");
+  if(b) b.classList.toggle("active", _tierView==="bar");
+  if(d) d.classList.toggle("active", _tierView==="down");
+  if(h) h.textContent=_tierView==="bar"
+    ? "upstairs: patrons, glass, live feed, television, pool and darts. downstairs is one click and several paperwork felonies away."
+    : "downstairs: stable, cage, pit book, sponsors. credits only in the cage; the ledger persists through the trapdoor.";
+  if(_tierView==="down"){
+    const sec=$("#basement");
+    if(sec){ sec.classList.remove("is-collapsed"); sec.classList.remove("folded"); }
+    const fb=$("#baseFold"); if(fb) fb.textContent="FOLD ▾";
+    if(typeof renderBasement==="function") renderBasement();
+    if(!quiet) window.scrollTo({top:0,behavior:"smooth"});
+  }
+}
 function findAgentAny(id){
   if(id==="vesper") return {a:VESPER, away:false, staff:true};
   const p=patrons.find(x=>x.id===id); if(p) return {a:p, away:false};
@@ -2752,6 +2799,11 @@ function hideAgentCard(){ const c=$("#agentCard"); if(c) c.classList.add("ac-hid
 (function uiWire(){
   try{
     collapseInit();
+    let savedView="bar"; try{ savedView=localStorage.getItem("tcw_view_v1")||"bar"; }catch(e){}
+    setTier(savedView, true);
+    const tB=$("#tierBarBtn"); if(tB) tB.addEventListener("click", function(){ setTier("bar"); });
+    const tD=$("#tierDownBtn"); if(tD) tD.addEventListener("click", function(){ setTier("down"); });
+    const rl=$("#resetLedgerBtn"); if(rl) rl.addEventListener("click", resetLedger);
     const pl=$("#plist"); if(pl) pl.addEventListener("click", function(e){ const r=e.target.closest("[data-pid]"); if(r) showAgentCard(r.dataset.pid); });
     const cl=$("#acClose"); if(cl) cl.addEventListener("click", hideAgentCard);
     const bk=$("#acBack"); if(bk) bk.addEventListener("click", hideAgentCard);
